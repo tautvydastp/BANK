@@ -11,6 +11,7 @@ public class Account {
         this.personId = personId;
         this.bankId = bankId;
         this.accountType = accountType;
+
     }
 
     public String getAccountNr() {

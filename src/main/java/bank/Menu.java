@@ -1,5 +1,6 @@
 package bank;
 
+import java.sql.DriverManager;
 import java.util.Scanner;
 
 public class Menu {
@@ -34,18 +35,22 @@ public class Menu {
     }
 
     private static void registration(Scanner scanner) {
+        NewAcc newAcc = new NewAcc();
         System.out.println("---------------Registracija------------");
         System.out.println("Įveskite vartotojo vardą");
         String newUserName = scanner.next();
         System.out.println("Įveskite slaptažodį");
         String newPassword = scanner.next();
-        System.out.println("Įveskite vardą");
-        String newName = scanner.next();
-        System.out.println("Įveskite pavardę");
-        String newLastname = scanner.next();
+//        System.out.println("Įveskite vardą");
+//        String newName = scanner.next();
+//        System.out.println("Įveskite pavardę");
+//        String newLastname = scanner.next();
         System.out.println("Įveskite asmens kodą");
         long newPersonId = scanner.nextLong();
-        Person person = new Person(newPersonId, newName, newLastname);
+        newAcc.setPersonId(newPersonId);
+        DbManager dbManager = new DbManager();
+        dbManager.insertNewAccount(newUserName, newPassword, newPersonId);
+
     }
 
 

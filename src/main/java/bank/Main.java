@@ -22,7 +22,6 @@ public class Main {
         List<Deposit> deposits = dbManager.getAllDeposits();
         System.out.println(deposits.toString());
         Menu.runMenu();
-        dbManager.writeNewAccount();
 
     }
 }

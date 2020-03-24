@@ -142,13 +142,16 @@ public class DbManager {
         return transactionList;
     }
 
-    public void writeNewAccount(){
+    public void insertNewAccount(String username, String password, long personId){
         try {
             Connection connection = createConnection();
             PreparedStatement statement = connection.prepareStatement(
                     "INSERT INTO PRISIJUNGIMAI(PRISIJUNGIMO_VARDAS, SLAPTAZODIS, ASMENS_KODAS) " +
-                    "VALUES ('kestone', 'kestone123', 37009090909");
-            ResultSet resultSet = statement.executeQuery();
+                    "VALUES (?,?,?)");
+            statement.setString(1, username);
+            statement.setString(2, password);
+            statement.setLong(3, personId);
+            statement.execute();
         } catch (SQLException e) {
             e.printStackTrace();
         }
