@@ -5,12 +5,17 @@ public class Account {
     private String personId;
     private int bankId;
     private String accountType;
+    private double balance;
 
-    public Account(String accountNr, String personId, int bankId, String accountType) {
+    public Account(String accountNr, String personId, int bankId, String accountType, double balance) {
         this.accountNr = accountNr;
         this.personId = personId;
         this.bankId = bankId;
         this.accountType = accountType;
+        this.balance = balance;
+    }
+
+    public Account() {
 
     }
 
@@ -46,12 +51,21 @@ public class Account {
         this.accountType = accountType;
     }
 
+    public double getBalance() {
+        return balance;
+    }
+
+    public void setBalance(double balance) {
+        this.balance = balance;
+    }
+
     @Override
     public String toString() {
         return "\nSaskaita: " +
                 "\nSaskaitos numeris: " + accountNr +
                 "\nAsmens kodas: " + personId +
                 "\nBanko id: " + bankId +
-                "\nKortelės tipas: " + accountType;
+                "\nKortelės tipas: " + accountType +
+                "\nBalansas: " + balance;
     }
 }
