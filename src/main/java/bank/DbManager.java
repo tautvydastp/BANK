@@ -142,7 +142,7 @@ public class DbManager {
         return transactionList;
     }
 
-    public void insertNewAccount(String username, String password, long personId){
+    public void insertNewAccountLogIn(String username, String password, long personId){
         try {
             Connection connection = createConnection();
             PreparedStatement statement = connection.prepareStatement(
