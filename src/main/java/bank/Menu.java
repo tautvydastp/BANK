@@ -1,11 +1,14 @@
 package bank;
 
+import com.sun.org.apache.xerces.internal.impl.dv.DVFactoryException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 public class Menu {
     public static void runMenu() {
+        DbManager dbManager = new DbManager();
         Scanner scanner = new Scanner(System.in);
         String choice = "";
         while (!choice.equals("3")) {
@@ -21,7 +24,7 @@ public class Menu {
                         Account account = new Account();
                         System.out.println(account.toString());
                     } else if("2".equals(userChoice)){
-
+                        dbManager.getAllTransactions();
                     }
                 }
             } else if ("2".equals(choice)) {
