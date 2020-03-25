@@ -11,6 +11,10 @@ public class Person {
         this.lastname = lastname;
     }
 
+    public Person() {
+
+    }
+
     public long getPersonId() {
         return personId;
     }

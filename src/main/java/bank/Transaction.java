@@ -15,6 +15,10 @@ public class Transaction {
         this.sum = sum;
     }
 
+    public Transaction() {
+
+    }
+
     public String getAccountNrFrom() {
         return accountNrFrom;
     }

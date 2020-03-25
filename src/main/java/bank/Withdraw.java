@@ -13,6 +13,10 @@ public class Withdraw {
         this.sum = sum;
     }
 
+    public Withdraw() {
+
+    }
+
     public String getAccountNr() {
         return accountNr;
     }

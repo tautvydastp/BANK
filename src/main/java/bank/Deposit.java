@@ -13,6 +13,10 @@ public class Deposit {
         this.sum = sum;
     }
 
+    public Deposit() {
+
+    }
+
     public String getAccountNr() {
         return accountNr;
     }

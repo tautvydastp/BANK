@@ -1,14 +1,11 @@
 package bank;
 
-import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
-import com.sun.xml.internal.ws.api.model.wsdl.WSDLOutput;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class DbManager {
+public class DbManager implements DbManagerInterface {
 
     private Connection createConnection() throws SQLException {
         return DriverManager.getConnection("jdbc:h2:tcp://localhost/~/test", "sa", "");
@@ -142,6 +139,39 @@ public class DbManager {
         return transactionList;
     }
 
+
+    public List<PersonInfo> getInformation(String username, long persId) {
+        List<PersonInfo> information = new ArrayList<PersonInfo>();
+        try {
+            Connection connection = createConnection();
+            PreparedStatement statement = connection.prepareStatement("SELECT ASMUO.ASMENS_KODAS, " +
+                    "VARDAS, PAVARDE, SASKAITA.SASKAITOS_NR, SASKAITOS_TIPAS, BALANSAS " +
+                    "FROM ASMUO JOIN SASKAITA ON ASMUO.ASMENS_KODAS = (SELECT PRISIJUNGIMAI.ASMENS_KODAS " +
+                    "FROM PRISIJUNGIMAI " +
+                    "WHERE PRISIJUNGIMO_VARDAS = ?) WHERE SASKAITA.SASKAITOS_NR = " +
+                    "(SELECT SASKAITA.SASKAITOS_NR FROM SASKAITA " +
+                    "WHERE SASKAITA.ASMENS_KODAS =?) ");
+
+            statement.setString(1, username);
+            statement.setLong(2, persId);
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                long personId = resultSet.getLong("ASMENS_KODAS");
+                String name = resultSet.getString("VARDAS");
+                String lastname = resultSet.getString("PAVARDE");
+                String accNr = resultSet.getString("SASKAITOS_NR");
+                String accType = resultSet.getString("SASKAITOS_TIPAS");
+                double balance = resultSet.getDouble("BALANSAS");
+                PersonInfo info = new PersonInfo(personId, name, lastname, accNr, accType, balance);
+                information.add(info);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return information;
+    }
+
     public void insertNewAccountLogIn(String username, String password, long personId) {
         try {
             Connection connection = createConnection();
@@ -186,14 +216,18 @@ public class DbManager {
         }
     }
 
-    public boolean logIn(String username, String password) {
+    public boolean logIn(String username, String password, long personId) {
         try {
             Connection connection = createConnection();
             PreparedStatement statement = connection.prepareStatement(
-                    "SELECT PRISIJUNGIMO_VARDAS, SLAPTAZODIS FROM PRISIJUNGIMAI WHERE PRISIJUNGIMO_VARDAS = ? AND SLAPTAZODIS = ?"
+                    "SELECT PRISIJUNGIMO_VARDAS, SLAPTAZODIS, PRISIJUNGIMAI.ASMENS_KODAS" +
+                            " FROM PRISIJUNGIMAI" +
+                            " WHERE PRISIJUNGIMO_VARDAS = ? AND SLAPTAZODIS = ?" +
+                            "AND PRISIJUNGIMAI.ASMENS_KODAS = ?"
             );
             statement.setString(1, username);
             statement.setString(2, password);
+            statement.setLong(3, personId);
 
             ResultSet resultSet = statement.executeQuery();
             return resultSet.next();
@@ -227,14 +261,70 @@ public class DbManager {
                 transactions.add(transaction);
             }
 
-        } catch (SQLException  e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
 
         return transactions;
     }
 
+    public void addDeposit() {
+        Deposit deposit = new Deposit();
+        try {
+            Connection connection = createConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement("SELECT BALANSAS FROM SASKAITA" +
+                    " WHERE SASKAITOS_NR = ?");
+            ResultSet rs = preparedStatement.executeQuery();
+            double rsSum = rs.getDouble("BALANSAS");
+            PreparedStatement statement = connection.prepareStatement("UPDATE SASKAITA" +
+                    " SET BALANSAS = ? WHERE SASKAITOS_NR = ?");
 
+            statement.setDouble(1, deposit.getSum() + rsSum);
+            statement.setString(2, deposit.getAccountNr());
+            statement.execute();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void withdrawMoney() {
+        Withdraw withdraw = new Withdraw();
+        try {
+            Connection connection = createConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement("SELECT BALANSAS FROM SASKAITA " +
+                    "WHERE SASKAITOS_NR = ?");
+            ResultSet rs = preparedStatement.executeQuery();
+            double rsSum = rs.getDouble("BALANSAS");
+            PreparedStatement statement = connection.prepareStatement("UPDATE SASKAITA SET BALANSAS = ?" +
+                    " WHERE SASKAITOS_NR = ?");
+            statement.setDouble(1, rsSum - withdraw.getSum());
+            statement.setString(2, withdraw.getAccountNr());
+            statement.execute();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void makeTransaction() {
+        Transaction transaction = new Transaction();
+        try {
+            Connection connection = createConnection();
+            PreparedStatement statement = connection.prepareStatement(
+                    "INSERT INTO PAVEDIMAI(SASKAITOS_NR_FROM, SASKAITOS_NR_TO, DATA, SUMA) VALUES (?,?,?,?)");
+            statement.setString(1, transaction.getAccountNrFrom());
+            statement.setString(2, transaction.getAccountNrTo());
+            statement.setDate(3, new java.sql.Date(transaction.getDate().getTime()));
+            statement.setDouble(4, transaction.getSum());
+            statement.execute();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }
 
 
