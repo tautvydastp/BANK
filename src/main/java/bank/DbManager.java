@@ -2,7 +2,6 @@ package bank;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class DbManager implements DbManagerInterface {
@@ -129,7 +128,7 @@ public class DbManager implements DbManagerInterface {
                 Date date = resultSet.getDate("DATA");
                 double sum = resultSet.getDouble("SUMA");
 
-                Transaction transaction = new Transaction(accountNrfrom, accountNrto, date, sum);
+                Transaction transaction = new Transaction(accountNrfrom, accountNrto, sum);
                 transactionList.add(transaction);
             }
         } catch (SQLException e) {
@@ -257,7 +256,7 @@ public class DbManager implements DbManagerInterface {
                 String accTo = resultSet.getString("SASKAITOS_NR_TO");
                 Date date = resultSet.getDate("DATA");
                 double sum = resultSet.getDouble("SUMA");
-                Transaction transaction = new Transaction(accFrom, accTo, date, sum);
+                Transaction transaction = new Transaction(accFrom, accTo, sum);
                 transactions.add(transaction);
             }
 
@@ -268,19 +267,14 @@ public class DbManager implements DbManagerInterface {
         return transactions;
     }
 
-    public void addDeposit() {
-        Deposit deposit = new Deposit();
+    public void addDeposit(String accNr, double sum) {
         try {
             Connection connection = createConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement("SELECT BALANSAS FROM SASKAITA" +
-                    " WHERE SASKAITOS_NR = ?");
-            ResultSet rs = preparedStatement.executeQuery();
-            double rsSum = rs.getDouble("BALANSAS");
             PreparedStatement statement = connection.prepareStatement("UPDATE SASKAITA" +
                     " SET BALANSAS = ? WHERE SASKAITOS_NR = ?");
 
-            statement.setDouble(1, deposit.getSum() + rsSum);
-            statement.setString(2, deposit.getAccountNr());
+            statement.setDouble(1, sum);
+            statement.setString(2, accNr);
             statement.execute();
 
         } catch (SQLException e) {
@@ -289,18 +283,14 @@ public class DbManager implements DbManagerInterface {
 
     }
 
-    public void withdrawMoney() {
-        Withdraw withdraw = new Withdraw();
+    public void withdrawMoney(String accNr, double sum) {
+
         try {
             Connection connection = createConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement("SELECT BALANSAS FROM SASKAITA " +
-                    "WHERE SASKAITOS_NR = ?");
-            ResultSet rs = preparedStatement.executeQuery();
-            double rsSum = rs.getDouble("BALANSAS");
             PreparedStatement statement = connection.prepareStatement("UPDATE SASKAITA SET BALANSAS = ?" +
                     " WHERE SASKAITOS_NR = ?");
-            statement.setDouble(1, rsSum - withdraw.getSum());
-            statement.setString(2, withdraw.getAccountNr());
+            statement.setDouble(1, sum);
+            statement.setString(2, accNr);
             statement.execute();
 
         } catch (SQLException e) {
@@ -309,15 +299,14 @@ public class DbManager implements DbManagerInterface {
 
     }
 
-    public void makeTransaction() {
-        Transaction transaction = new Transaction();
+    public void makeTransaction(Transaction transaction) {
         try {
             Connection connection = createConnection();
             PreparedStatement statement = connection.prepareStatement(
                     "INSERT INTO PAVEDIMAI(SASKAITOS_NR_FROM, SASKAITOS_NR_TO, DATA, SUMA) VALUES (?,?,?,?)");
             statement.setString(1, transaction.getAccountNrFrom());
             statement.setString(2, transaction.getAccountNrTo());
-            statement.setDate(3, new java.sql.Date(transaction.getDate().getTime()));
+            statement.setDate(3, new Date(transaction.getDate().getTime()));
             statement.setDouble(4, transaction.getSum());
             statement.execute();
 

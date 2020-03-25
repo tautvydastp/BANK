@@ -17,9 +17,6 @@ public class PersonInfo {
         this.balance = balance;
     }
 
-    public PersonInfo() {
-
-    }
 
     public String getAccType() {
         return accType;

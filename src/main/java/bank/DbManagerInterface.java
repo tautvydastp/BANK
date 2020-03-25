@@ -29,10 +29,10 @@ public interface DbManagerInterface {
 
      List<Transaction> transactions();
 
-     void makeTransaction();
+     void makeTransaction(Transaction transaction);
 
-     void addDeposit();
+     void addDeposit(String accNr, double sum);
 
-     void withdrawMoney();
+     void withdrawMoney(String accNr, double sum);
 
 }

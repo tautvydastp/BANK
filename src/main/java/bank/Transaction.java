@@ -1,6 +1,8 @@
 package bank;
 
-import java.util.Date;
+
+import java.sql.Date;
+import java.time.LocalDate;
 
 public class Transaction {
     private String accountNrFrom;
@@ -8,10 +10,10 @@ public class Transaction {
     private Date date;
     private double sum;
 
-    public Transaction(String accountNrFrom, String accountNrTo, Date date, double sum) {
+    public Transaction(String accountNrFrom, String accountNrTo, double sum) {
         this.accountNrFrom = accountNrFrom;
         this.accountNrTo = accountNrTo;
-        this.date = date;
+        this.date = Date.valueOf(LocalDate.now());
         this.sum = sum;
     }
 
@@ -37,10 +39,6 @@ public class Transaction {
 
     public Date getDate() {
         return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
     }
 
     public double getSum() {

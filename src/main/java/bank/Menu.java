@@ -9,16 +9,21 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Menu {
+    static DbManager dbManager = new DbManager();
+    static Scanner scanner = new Scanner(System.in);
+   static AccLogIn accLogIn = new AccLogIn();
+    static Deposit deposit = new Deposit();
+    static Withdraw withdraw = new Withdraw();
+    static Transaction transaction = new Transaction();
+    static Account account = new Account();
+
     public static void runMenu() {
-        DbManager dbManager = new DbManager();
-        Scanner scanner = new Scanner(System.in);
-        AccLogIn accLogIn = new AccLogIn();
         String choice = "";
         while (!choice.equals("3")) {
             mainMenu();
             choice = scanner.next();
             if ("1".equals(choice)) {
-                logIn(scanner, accLogIn);
+                if (logIn(scanner, accLogIn) == true) {
                     String userChoice = "";
                     while (!userChoice.equals("6")) {
                         userMenu();
@@ -29,16 +34,15 @@ public class Menu {
                         } else if ("2".equals(userChoice)) {
                             dbManager.transactions();
                         } else if ("3".equals(userChoice)) {
-                            deposit(scanner);
-                            dbManager.addDeposit();
+                            deposit();
                         } else if ("4".equals(userChoice)) {
-                            withdraw(scanner);
-                            dbManager.withdrawMoney();
+                            withdraw();
                         } else if ("5".equals(userChoice)) {
-                            transaction(scanner);
-                            dbManager.makeTransaction();
+                            transaction();
+                            dbManager.makeTransaction(transaction);
                         } else System.out.println("bloga ivestis");
-                }
+                    }
+                } else choice = "x";
             } else if ("2".equals(choice)) {
                 registration(scanner);
             } else {
@@ -47,39 +51,40 @@ public class Menu {
         }
     }
 
-    private static void deposit(Scanner scanner) {
-        Deposit deposit = new Deposit();
+    private static void deposit() {
         System.out.println("Įveskite sąskaitos numerį, į kurią norite įdėti pinigus: ");
         String accNr = scanner.next();
-        deposit.setAccountNr(accNr);
+        account.setAccountNr(accNr);
         System.out.print("Iveskite įnešamą sumą: ");
         double sum = scanner.nextDouble();
+        account.setBalance(account.getBalance() + sum);
+        dbManager.addDeposit(account.getAccountNr() , account.getBalance());
     }
 
-    private static void withdraw(Scanner scanner) {
-        Withdraw withdraw = new Withdraw();
+    private static void withdraw() {
         System.out.println("Iveskite sąskaitos numerį, iš kurios norite išimti pinigus: ");
         String accNr = scanner.next();
-        withdraw.setAccountNr(accNr);
+        account.setAccountNr(accNr);
         System.out.print("Iveskite sumą, kurią norite išimti: ");
         double sum = scanner.nextDouble();
-        withdraw.setSum(sum);
+        account.setBalance(account.getBalance() - sum);
+        dbManager.withdrawMoney(account.getAccountNr(), account.getBalance());
     }
 
-    private static void transaction(Scanner scanner) {
-        Transaction transaction = new Transaction();
+    private static void transaction() {
         System.out.println("Įvekite sąskaitos numerį, iš kurios norite pervesti pinigus:");
         String accNrFrom = scanner.next();
         transaction.setAccountNrFrom(accNrFrom);
         System.out.print("Iveskite sumą, kurią norite pervesti: ");
         double sum = scanner.nextDouble();
-        transaction.setSum(sum);
+        account.setBalance(account.getBalance() - sum);
         System.out.println("Iveskite sąskaitos numerį, į kurią norite pervesti pinigus");
         String accNrTo = scanner.next();
         transaction.setAccountNrTo(accNrTo);
+
     }
 
-    private static void logIn(Scanner scanner, AccLogIn accLogIn) {
+    private static boolean logIn(Scanner scanner, AccLogIn accLogIn) {
         DbManager dbManager = new DbManager();
         System.out.println("---------------Prisijungimas------------");
         System.out.println("Įveskite vartotojo vardą");
@@ -92,8 +97,10 @@ public class Menu {
         accLogIn.setPersonId(personId);
         if (dbManager.logIn(username, password, personId)) {
             System.out.println("Prisijungti pavyko");
+            return true;
         } else {
             System.out.println("Nepavyko prisijungti");
+            return false;
         }
 
     }
